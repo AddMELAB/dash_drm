@@ -3,4 +3,8 @@ pandas
 matplotlib
 scipy
 dash
+plotly
 gunicorn
+scikit-learn
+scikit-image
+tensorflow
