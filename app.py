@@ -3,9 +3,9 @@ import dash_html_components as html
 import dash_core_components as dcc
 from dash.dependencies import Input, Output
 from numpy.lib.type_check import imag
-from analysis import get_pca_contrast, get_anomaly_contrast, get_grain_segmentation
-from serving_model import get_orientation
-from utils import *
+from lib.analysis import get_pca_contrast, get_anomaly_contrast, get_grain_segmentation
+from lib.serving_model import get_orientation
+from lib.utils import *
 import plotly.express as px
 from joblib import Memory
 
@@ -21,6 +21,7 @@ string = np.zeros((100, 100, 10, 36))
 
 # Initialize app
 app = dash.Dash(__name__)
+
 server = app.server
 
 # LAYOUT
@@ -177,6 +178,6 @@ def change_dataset_display(phi_value, theta_value):
     return graph
 
 if __name__ == '__main__':
-    app.run_server(debug=True, port=8002,
+    app.run_server(debug=True, #port=8002,
                 #    dev_tools_hot_reload=False,
                    )
