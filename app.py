@@ -4,14 +4,16 @@ import dash_core_components as dcc
 from dash.dependencies import Input, Output
 from numpy.lib.type_check import imag
 from lib.analysis import get_pca_contrast, get_anomaly_contrast, get_grain_segmentation
-from lib.serving_model import get_orientation
+from lib.serving_qr import get_qr_code
+# from lib.serving_model import get_orientation
 from lib.utils import *
 import plotly.express as px
 from joblib import Memory
 
 # Cache heavy calculations:
 memory = Memory("./joblib_cache", bytes_limit=3000000000, verbose=3)
-get_orientation_cached = memory.cache(get_orientation)
+# get_orientation_cached = memory.cache(get_orientation)
+get_qr_code_cached = memory.cache(get_qr_code)
 grain_segmentation_cached = memory.cache(get_grain_segmentation)
 
 # Global variables:
@@ -88,7 +90,8 @@ def predict(task_index, ds):
     elif task_index == 1:
         prediction = get_anomaly_contrast(string, ds=ds)
     elif task_index == 2:
-        prediction = get_orientation_cached(string, ds=ds)
+        prediction = get_qr_code_cached(string, ds=ds)
+        # prediction = get_orientation_cached(string, ds=ds)
     else:
         prediction = grain_segmentation_cached(string, ds=ds)
     return prediction
