@@ -2,7 +2,4 @@ numpy
 pandas
 matplotlib
 scipy
-scikit-learn
-scikit-image
 dash
-tensorflow
