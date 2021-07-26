@@ -1,8 +1,8 @@
 gunicorn
 numpy==1.19.2
-pandas==1.1.5
+pandas
 matplotlib
-scipy==1.4.1
+scipy
 dash==1.19.0
 plotly==4.14.3
 scikit-learn==0.24.2
