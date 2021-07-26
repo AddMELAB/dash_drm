@@ -6,5 +6,5 @@ scipy
 dash==1.19.0
 plotly==4.14.3
 scikit-learn==0.24.2
-scikit-image==0.17.2
+scikit-image
 tensorflow==2.1.0
