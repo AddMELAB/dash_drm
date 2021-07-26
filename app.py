@@ -21,6 +21,7 @@ string = np.zeros((100, 100, 10, 36))
 
 # Initialize app
 app = dash.Dash(__name__)
+server = app.server
 
 # LAYOUT
 app.layout = html.Div([
