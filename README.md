@@ -17,4 +17,4 @@ There are currently four different analysis supported by the app:
 2. **Z-score analysis:** Computes a single channel image corresponding to the distance of each pixel to the global mean. This is can be useful to spot outlier pixels and can sometimes highlight defects in the microstructure.
 3. **Texture prediction:** /!\ Only available on localhost with tensorflow > 2.1 installed /!\. Full orientation prediction in SS.316L using a CNN (see our publication for more details). Tensorflow is too heavy (400 Mb) to be hosted on Heroku. Need a future fix!
 4. **Texture classification:** 3-class texture classification (111, 110, 100) in SS.316L using sklearn's MLP classifier.
-5. Grain segmentation: Implements the LRC-MRM segmentation algorithm for autonomous grain identification. See our publication for more details.
+5. **Grain segmentation:** Implements the LRC-MRM segmentation algorithm for autonomous grain identification (see [our publication](https://doi.org/10.1016/j.matchar.2021.110978) for more details).
