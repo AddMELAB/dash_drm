@@ -1,6 +1,6 @@
 ![alt text](https://raw.githubusercontent.com/MalloryWittwer/dash_drm/main/static/app_overview.jpg)
 
-Dash-DRM is a web app made with [Plotly Dash](https://plotly.com/dash/) designed for DRM analysis. A simpler version of the app is deployed on Heroku at [https://drm-dash-app.herokuapp.com/](https://drm-dash-app.herokuapp.com/). The Heroku version does not implement orientation prediction for I718 because Tensorflow is too heavy for Heroku's 500 Mb free deployment plan. Also, it can only support uploading small DRM datasets for the same reason.
+Dash-DRM is a web app made with [Plotly Dash](https://plotly.com/dash/) designed for DRM analysis. The app can be deployed locally and viewed in the browser. As an alternative, a simpler version of the app is deployed on Heroku at [https://drm-dash-app.herokuapp.com/](https://drm-dash-app.herokuapp.com/). The Heroku version does not implement orientation prediction for I718 because Tensorflow is too heavy for Heroku's 500 Mb free deployment plan. Also, it can only support uploading small DRM datasets for the same reason.
 
 ## Installation steps
 
