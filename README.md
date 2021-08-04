@@ -18,8 +18,8 @@ There are currently four different analysis supported by the app:
 
 1. **PCA contrast:** Projects the dataset on its first three PCA components and shows these components as RGB channels. As the variance is maximized, this usually produces an image with high color contrast, which can be handy for visualization.
 2. **Z-score analysis:** Computes a single channel image corresponding to the distance of each pixel to the global mean. This is can be useful to spot outlier pixels and can sometimes highlight defects in the microstructure.
-3. **Texture prediction:** /!\ Only available on localhost with tensorflow > 2.1 installed /!\. Full orientation prediction in SS.316L using a CNN (see our publication for more details). Tensorflow is too heavy (400 Mb) to be hosted on Heroku. Need a future fix!
-4. **Texture classification:** 3-class texture classification (111, 110, 100) in SS.316L using sklearn's MLP classifier.
+3. **I718 orientation prediction:** Requires tensorflow 2.1 (only on localhost). Full orientation prediction in SS.316L using a CNN (see our publication for more details).Only the Z-map is displayed. Tensorflow is too heavy (400 Mb) to be hosted on Heroku. Need a future fix!
+4. **316L texture classification:** 3-class texture classification (111, 110, 100) in SS.316L using sklearn's MLP classifier.
 5. **Grain segmentation:** Implements the LRC-MRM segmentation algorithm for autonomous grain identification (see [our publication](https://doi.org/10.1016/j.matchar.2021.110978) for more details).
 
 To downscale the DRM dataset spatially before performing the analysis (to speed up calculations), use the "Downscale" slider. A value of 1 corresponds to the native resolution, while 8 will select one out of eight pixels in both the X and Y axes (resulting in 64X data reduction).
