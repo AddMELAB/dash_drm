@@ -1,42 +1,30 @@
 body {
     background-color: white;
     font-family: sans-serif;
-    --theme-color: rgb(62, 59, 105);
-    --theme-border-radius: 0px;
+    --theme-color: rgb(52, 51, 65);
+    --theme-border-radius: 10px;
 }
 
 #layout {
     color: var(--theme-color);
-    position: absolute;
-    bottom: 10px;
-    top: 10px;
-    right: 10px;
-    left: 10px;
     border-radius: var(--theme-border-radius);
     background-color: var(--theme-color);
 
-    display: flex;
-    flex-direction: column;
-    justify-content: space-evenly;
-    align-items: stretch;
-}
-
-#header {
-    color: white;
-    text-align: center;
-    font-size: 2em;
-    font-weight: 700;
-}
-
-#main {
     display: grid;
     grid-template-columns: 1fr 2fr;
     grid-template-rows: auto;
     grid-template-areas: 
-        "form analysis" 
-        "form sliders";
-    width: 100%;
-    height: 100%;
+        "header header header"
+        "form analysis analysis" 
+        "form sliders sliders";
+}
+
+#header {
+    grid-area: header;
+    color: white;
+    text-align: center;
+    font-size: 2em;
+    font-weight: 700;
 }
 
 #form-board, #analysis-board, #sliders-board {
@@ -58,104 +46,38 @@ body {
     grid-area: analysis;
 }
 
-/* #tab-master {
-    background-color: turquoise;
-} */
-
-/* #tab-1-container, #tab-2-container {
-    background-color: yellow;
-} */
-
-/* #tab-1-content, #tab-2-content {
-    background-color: tomato;
-} */
-
-/* #image-upload {
-    text-align: center;
-    height: 100%;
-    width: 100%;
-} */
-
-/* #my-graph, #graph-dataset {
-    background-color: violet;
-} */
-
 #sliders-board {
     grid-area: sliders;
-
-    display: grid;
-    grid-template-columns: 1fr 8fr;
-    grid-template-rows: auto;
-    grid-template-areas: 
-        "thetaL thetaS" 
-        "phiL phiS";
-    /* width: 100%;
-    height: 100%; */
-    /* justify-items: center; */
-    align-items: center;
+    display: flex;
+    flex-direction: column;
 }
 
-#phi-slider, #theta-slider, #label-phi-slider, #label-theta-slider {
-    display: grid;
+#phi-container, #theta-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin-right: 10px;
+    margin-left: 15px;
 }
 
-#phi-slider {
-    grid-area: phiS;
+#phi-container {
+    margin-top: 20px;
 }
 
-#theta-slider {
-    grid-area: thetaS;
-}
-
-#label-phi-slider {
-    grid-area: phiL;
-}
-
-#label-theta-slider {
-    grid-area: thetaL;
+#theta-container {
+    margin-bottom: 10px;
 }
 
 #phi-slider, #theta-slider {
-    justify-items: left;
+    display: flex;
+    width: 100%;
 }
 
 #label-phi-slider, #label-theta-slider {
-    justify-items: right;
-}
-
-
-
-/* #label-container {
-    width: 50px;
-    margin-right: 10px;
-    padding-right: 20px;
-} */
-
-/* #label-container, #slider-container {
     display: flex;
-    flex-direction: column;
-    justify-content: space-evenly;
-    align-items: stretch;
-    background-color: lawngreen;
-    margin-right: 0px;
-    padding: 0px;
-} */
-
-/* #label-phi-slider, #label-theta-slider {
     text-align: right;
-    margin-right: 0px;
-    padding: 0px;
-} */
-
-/* #phi-slider, #theta-slider {
-    display: flex;
-    flex-direction: column;
-    justify-content: stretch;
-    align-items: flex-start;
-    background-color: magenta;
-    margin-right: 0px;
-    padding: 0px;
-} */
+    width: 50px;
+}
 
 #upload-image {
     margin: 10px 5px;
@@ -163,7 +85,7 @@ body {
     border-radius: var(--theme-border-radius);
     text-align: center;
     line-height: 1.5em;
-    padding: 30px 5px;
+    padding: 180px 5px;
 }
 
 #downscale-container {
@@ -187,7 +109,7 @@ body {
 
 #button-predict {
     margin: 15px 5px;
-    padding: 5px 0px;
+    padding: 20px 0px;
     color: var(--theme-color);
     border: 2px solid var(--theme-color);
     border-radius: var(--theme-border-radius);
@@ -199,4 +121,10 @@ body {
 #button-predict:hover {
     background-color: var(--theme-color);
     color: white;
+}
+
+#predict-graph, #dataset-graph {
+    max-height: 600px;
+    max-width: 600px;
+    margin: auto;
 }

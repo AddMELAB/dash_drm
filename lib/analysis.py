@@ -9,6 +9,92 @@ from skimage.future.graph import RAG
 import heapq
 from skimage.segmentation import find_boundaries
 from skimage.morphology import skeletonize
+import pickle
+import warnings
+
+warnings.filterwarnings("ignore")
+
+
+def get_pca_contrast(data, ds=1, cps=3):
+    """Computes a basic PCA contrast with 3 first components as RGB"""
+    data = data[::ds, ::ds]
+    rx, ry, s0, s1 = data.shape
+    data = data.reshape((rx * ry, s0*s1))
+    data = MinMaxScaler().fit_transform(data)
+    data = PCA(cps).fit_transform(data)
+    data = MinMaxScaler().fit_transform(data)
+    data = data.reshape((rx, ry, cps))
+    data = data * 255
+    return data
+
+
+def get_anomaly_contrast(data, ds=1):
+    """Computes a basic Z-score image (1 dimensional)"""
+    zs = data[::ds, ::ds]
+    rx, ry, s0, s1 = zs.shape
+    zs = zs.reshape((rx * ry, s0 * s1))
+    zs = PCA(2).fit_transform(zs)
+    zs = StandardScaler().fit_transform(zs)
+    zs = np.abs(zs)
+    zs = np.sqrt(np.sum(np.square(zs), axis=1))
+    zs = MinMaxScaler().fit_transform(zs.reshape(-1,1))
+    zs = zs.reshape((rx, ry)) * 255
+    return zs
+
+
+def get_316L_classification(data, ds):
+    """
+    ANN classification of 100/110/111 textures in 316L (trained on QR code data).
+    The data MUST BE of shape (x, y, 13, 36). If it's not, no error will be raised
+    but a message will be printed.
+    """
+    data = data[::ds, ::ds]
+    rx, ry, s0, s1 = data.shape
+
+    if (s0 != 13) | (s1 != 36):
+        print('316L Classification expects (x, y, 13, 36) as dataset shape!')
+        preds = np.zeros((rx, ry))
+    else:
+        model = pickle.load(open('./saved_models/ann_model_skl_0.sav', 'rb'))
+        preds = model.predict(data.reshape((rx*ry, s0*s1))).reshape((rx, ry))
+
+    preds_color = np.empty((rx, ry, 4))
+    preds_color[preds == 0] = [255, 37, 21, 255]
+    preds_color[preds == 1] = [30, 253, 8, 255]
+    preds_color[preds == 2] = [38, 44, 247, 255]
+
+    return preds_color
+
+
+def get_grain_segmentation(data, ds=1):
+    zs = data[::ds, ::ds]
+    rx, ry, s0, s1 = zs.shape
+
+    # This is just a convention
+    dataset = {
+        'data': zs.reshape((rx * ry, s0 * s1)),
+        'spatial_resol': (rx, ry),
+        'angular_resol': (s0, s1),
+    }
+
+    dataset = _run_lrc_mrm(
+        dataset,  # Dataset, formatted as above
+        30,  # NMF components
+        min(2000, rx*ry),  # Sampling size
+    )
+
+    # Reshape the maps
+    segmentation = dataset.get('segmentation').reshape((rx, ry))
+    gbs = dataset.get('boundaries').reshape((rx, ry))
+
+    # Rescale segmentation
+    segmentation = segmentation - segmentation.min()
+    segmentation = segmentation / segmentation.max()
+    segmentation = plt.cm.jet(segmentation)
+    segmentation[gbs] = [1, 1, 1, 0]
+    segmentation = segmentation * 255
+
+    return segmentation
 
 
 class NMFDataCompressor():
@@ -36,61 +122,6 @@ class NMFDataCompressor():
         '''Returns a compressed feature vector representation of the data'''
         return self.compressor.transform(data)
 
-def get_pca_contrast(data, ds=1, cps=3):
-    data = data[::ds, ::ds]
-    rx, ry, s0, s1 = data.shape
-    data = data.reshape((rx * ry, s0*s1))
-    data = MinMaxScaler().fit_transform(data)
-    data = PCA(cps).fit_transform(data)
-    data = MinMaxScaler().fit_transform(data)
-    data = data.reshape((rx, ry, cps))
-    data = data * 255
-    return data
-
-def get_anomaly_contrast(data, ds=1):
-    zs = data[::ds, ::ds]
-    rx, ry, s0, s1 = zs.shape
-    zs = zs.reshape((rx * ry, s0 * s1))
-    zs = PCA(2).fit_transform(zs)
-    zs = StandardScaler().fit_transform(zs)
-    zs = np.abs(zs)
-    zs = np.sqrt(np.sum(np.square(zs), axis=1))
-    zs = MinMaxScaler().fit_transform(zs.reshape(-1,1))
-    zs = zs.reshape((rx, ry)) * 255
-    return zs
-
-def get_grain_segmentation(data, ds=1):
-    zs = data[::ds, ::ds]
-    print('\n> Loaded DRM data: ', zs.shape)
-    rx, ry, s0, s1 = zs.shape
-
-    # This is just a convention
-    dataset = {
-        'data': zs.reshape((rx * ry, s0 * s1)),
-        'spatial_resol': (rx, ry),
-        'angular_resol': (s0, s1),
-    }
-
-    print('\n> Started segmentation. Fitting NMF model...')
-    dataset = _run_lrc_mrm(
-        dataset,  # Dataset, formatted as above
-        50,  # NMF components
-        2000,  # Sampling size
-    )
-    print('\n> Finished segmentation!')
-
-    # Reshape the maps
-    segmentation = dataset.get('segmentation').reshape((rx, ry))
-    gbs = dataset.get('boundaries').reshape((rx, ry))
-
-    # Rescale segmentation
-    segmentation = segmentation - segmentation.min()
-    segmentation = segmentation / segmentation.max()
-    segmentation = plt.cm.jet(segmentation)
-    segmentation[gbs] = [1, 1, 1, 0]
-    segmentation = segmentation * 255
-
-    return segmentation
 
 def _run_lrc_mrm(dataset, cps, sample_size):
     '''
@@ -103,19 +134,17 @@ def _run_lrc_mrm(dataset, cps, sample_size):
     '''
     compressor = NMFDataCompressor(cps)
     compressor.fit(dataset, sample_size)
-    print('\n> Fitted NMF model. Compressing dataset...')
     compressed_dataset = compressor.transform(dataset['data'])
     dataset['data'] = compressed_dataset
-    print(f'\n> Compressed dataset to {cps} components. Fitting logistic regression model...')
     dataset = _fit_lrc_model(
         dataset,
         model=LogisticRegression(penalty='none', max_iter=2000),
         training_set_size=sample_size,
         test_set_size=sample_size,
     )
-    print('\n> Fitted logistic regression model. Initializing RAG graph...')
     dataset = _lrc_mrm_segmentation(dataset)
     return dataset
+
 
 def _lrc_mrm_segmentation(dataset):
     '''
@@ -134,7 +163,6 @@ def _lrc_mrm_segmentation(dataset):
 
     # Initialize region agacency graph (RAG)
     rag, edge_heap, segments = _initialize_graph(rx, ry, data, model)
-    print('\n> Initialized RAG graph. Starting region merging...')
 
     # Start the region-merging algorithm
     while (len(edge_heap) > 0) and (edge_heap[0][0] < 0.5):
@@ -180,7 +208,6 @@ def _lrc_mrm_segmentation(dataset):
                 # Push edges to the heap
                 heapq.heappush(edge_heap, heap_item)
 
-    print('\n> Finished merging. Reconstructing grain map...')
     # Compute grain segmentation map
     label_map = np.arange(segments.max() + 1)
     for ix, (n, d) in enumerate(rag.nodes(data=True)):
@@ -308,6 +335,7 @@ def _get_adjacent_sample(rx, ry, data, sample_size, xmap, ymap):
 
     return Xclose, yclose
 
+
 def _get_non_adjacent_sample(data, sample_size, xmap, ymap):
     '''
     Samples Dbar, the distribution of non-adjacent pixels.
@@ -330,9 +358,11 @@ def _get_non_adjacent_sample(data, sample_size, xmap, ymap):
 
     return Xfar, yfar
 
+
 def _vector_similarity(a, b):
     '''Returns distance vector of two input feature vectors'''
     return np.square(np.subtract(a, b))
+
 
 def get_xymaps(rx, ry):
     '''
@@ -350,6 +380,7 @@ def get_xymaps(rx, ry):
     ymap = ymap.ravel()
     return xmap, ymap
 
+
 def shuffler(data, sample_size):
     '''
     Helper function.
@@ -359,9 +390,3 @@ def shuffler(data, sample_size):
     sample = data[idx[:sample_size]]
     indeces = idx[:sample_size]
     return sample, indeces
-
-if __name__=='__main__':
-    data = np.load('data_i718_test.npy')
-    print('shape: ', data.shape)
-    zmap = get_grain_segmentation(data, ds=2)
-    print('zmap: ', zmap.shape, zmap.max())
