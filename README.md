@@ -23,5 +23,3 @@ There are currently four different analysis supported by the app:
 5. **Grain segmentation:** Implements the LRC-MRM segmentation algorithm for autonomous grain identification (see [our publication](https://doi.org/10.1016/j.matchar.2021.110978) for more details).
 
 To downscale the DRM dataset spatially before performing the analysis (to speed up calculations), use the "Downscale" slider. A value of 1 corresponds to the native resolution, while 8 will select one out of eight pixels in both the X and Y axes (resulting in 64X data reduction).
-
-For any inquiries, please contact addme.lab@ntu.edu.sg.
