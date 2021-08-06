@@ -17,17 +17,42 @@ def get_i718_orientation(data, ds=1):
     rx, ry, s0, s1 = data.shape
 
     if (s0 != 6) | (s1 != 72):
-        print('I718 grainorientation prediction expects (x, y, 6, 72) as dataset shape!')
+        print('I718 grain orientation prediction expects (x, y, 6, 72) as dataset shape!')
         z_map = np.zeros((rx, ry))
     else:
         train_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-        train_path = os.path.join(train_path, 'trained_model/')
+        train_path = os.path.join(train_path, 'trained_model_i718/')
         model = CustomModel(train_path, s0=s0, s1=s1)
         data = data.reshape((rx * ry, s0, s1))
         dataset = tf.data.Dataset.from_tensor_slices(data).batch(50)
         predictions = model.predict(dataset)
-        z_map = get_zmap(predictions, rx, ry)
+        x_map, y_map, z_map = get_maps(predictions, rx, ry)
     return z_map
+
+
+def get_316L_orientation(data, ds=1):
+    """
+    Z-map orientation prediction in Inconel 718 (Tensorflow implementation).
+    The model predicts the full orientation; feel free to modify the app to
+    display X and Y maps as well or Euler maps.
+    I would advise tf version 2.1.0; I've had issues with more recent versions.
+    The data MUST BE of shape (x, y, 13, 36)!
+    """
+    data = data[::ds, ::ds]
+    rx, ry, s0, s1 = data.shape
+
+    if (s0 != 13) | (s1 != 36):
+        print('316L grain orientation prediction expects (x, y, 13, 36) as dataset shape!')
+        z_map = np.zeros((rx, ry))
+    else:
+        train_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+        train_path = os.path.join(train_path, 'trained_model_316L/')
+        model = CustomModel(train_path, s0=s0, s1=s1)
+        data = data.reshape((rx * ry, s0, s1))
+        dataset = tf.data.Dataset.from_tensor_slices(data).batch(50)
+        predictions = model.predict(dataset)
+        x_map, y_map, z_map = get_maps(predictions, rx, ry)
+    return y_map
 
 
 class CustomModel():
@@ -66,9 +91,7 @@ class CustomModel():
         self.model = tf.keras.Model(inputs=inputs, outputs=output)
 
         # # Reload weights
-        print('GOING TO RELOAD from: ', checkpoint)
         self.model.load_weights(checkpoint).expect_partial()
-        print('COULD RELOAD THESE WEIGHTS')
 
         # Compile
         self.model.compile(
@@ -78,16 +101,16 @@ class CustomModel():
         print(self.model.summary())
 
     def predict(self, dataset):
-        print('PREDICTING NOW...')
         predictions = self.model.predict(dataset)
-        print('GOTCHA')
         return predictions
 
 
-def get_zmap(preds, rx, ry):
-    _, _, zmap_pred = visualize(preds, rx, ry)
+def get_maps(preds, rx, ry):
+    xmap_pred, ymap_pred, zmap_pred = visualize(preds, rx, ry)
+    xmap_pred = xmap_pred.numpy().reshape((rx, ry, 3))
+    ymap_pred = ymap_pred.numpy().reshape((rx, ry, 3))
     zmap_pred = zmap_pred.numpy().reshape((rx, ry, 3))
-    return zmap_pred
+    return xmap_pred, ymap_pred, zmap_pred
 
 # @tf.function
 def visualize(eulers, rx, ry, reshape=True):

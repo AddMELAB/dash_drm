@@ -16,7 +16,7 @@ from lib.analysis import (  # Feel free to add your analysis function here!
     get_grain_segmentation, 
     get_316L_classification,
 )
-from lib.serving_model import get_i718_orientation
+from lib.serving_model import get_i718_orientation, get_316L_orientation
 
 # Cached functions (recommended for heavy computations):
 memory = Memory("./joblib_cache", bytes_limit=3000000000, verbose=3)
@@ -25,6 +25,7 @@ get_anomaly_contrast_cached = memory.cache(get_anomaly_contrast)
 get_qr_code_cached = memory.cache(get_316L_classification)
 get_grain_segmentation_cached = memory.cache(get_grain_segmentation)
 get_i718_orientation_cached = memory.cache(get_i718_orientation)
+get_316L_orientation_cached = memory.cache(get_316L_orientation)
 
 # Global variables:
 n_clicks_trakcer = None
@@ -37,7 +38,8 @@ list_of_tasks = {
     1 : ("Z-score analysis", get_anomaly_contrast_cached),
     2 : ("316L ([100]/[110]/[111]) classification", get_qr_code_cached),
     3 : ("Grain segmentation", get_grain_segmentation_cached),
-    4 : ("Inconel 718 orientation", get_i718_orientation_cached)
+    4 : ("Inconel 718 orientation (Z)", get_i718_orientation_cached),
+    5 : ("316L orientation (Y)", get_316L_orientation_cached),
  }
 
 # Initialize app
