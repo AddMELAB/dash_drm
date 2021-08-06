@@ -19,7 +19,7 @@ There are currently a few different analysis supported by the app:
 1. **PCA contrast:** Projects the dataset on its first three PCA components and shows these components as RGB channels. As the variance is maximized, this usually produces an image with high color contrast, which can be handy for visualization.
 2. **Z-score analysis:** Computes a single channel image corresponding to the distance of each pixel to the global mean. This is can be useful to spot outlier pixels and can sometimes highlight defects in the microstructure.
 3. **316L texture classification:** 3-class texture classification (111, 110, 100) in SS.316L using sklearn's MLP classifier.
-4. **Grain segmentation:** Implements the LRC-MRM segmentation algorithm for autonomous grain identification (see [our publication](https://doi.org/10.1016/j.matchar.2021.110978) for more details).
+4. **Grain segmentation:** Implements the LRC-MRM segmentation algorithm for autonomous grain identification (see [our publication](https://doi.org/10.1016/j.matchar.2021.110978) for more details). Watchout; it can be slow!
 5. **I718 orientation prediction (Z map):** Requires tensorflow 2.1 (only on localhost). Full orientation prediction using a CNN.Only the IPF Z map is displayed but that can be easily changed in the code (the code predicts the full orientaiton, not just the Z map). Tensorflow is too heavy (400 Mb) to be hosted on Heroku. Need a future fix!
 6. **Stainless steel 316L orientation prediction (Y map)**: same concept.
 
